@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: cloudcart-postgres
+    environment:
+      POSTGRES_USER: cloudcart
+      POSTGRES_PASSWORD: cloudcart123
+      POSTGRES_DB: cloudcart_users
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudcart"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # User Service
+  user-service:
+    build: ./services/user-service
+    container_name: cloudcart-user-service
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=postgresql://cloudcart:cloudcart123@postgres:5432/cloudcart_users
+      - SECRET_KEY=dev-secret-key-12345
+      - JWT_SECRET_KEY=jwt-secret-key-12345
+      - DEBUG=True
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/user-service:/app
+    command: python app.py
+
+volumes:
+  postgres_data:
