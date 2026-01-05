@@ -36,7 +36,28 @@ services:
     volumes:
       - ./services/user-service:/app
     command: python app/app.py
-
+  
+  # Product Service
+  product-service:
+    build: ./services/product-service
+    container_name: cloudcart-product-service
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=development
+      - PORT=5002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=cloudcart_products
+      - DB_USER=cloudcart
+      - DB_PASSWORD=cloudcart123
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/product-service:/app
+      - /app/node_modules
+    command: npm start
 
 volumes:
   postgres_data:
