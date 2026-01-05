@@ -35,7 +35,8 @@ services:
         condition: service_healthy
     volumes:
       - ./services/user-service:/app
-    command: python app.py
+    command: python app/app.py
+
 
 volumes:
   postgres_data:
