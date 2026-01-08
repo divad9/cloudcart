@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Starting database initialization..."
+echo "í´§ Starting database initialization..."
 
 # Create the products database
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
@@ -9,4 +9,4 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     GRANT ALL PRIVILEGES ON DATABASE cloudcart_products TO cloudcart;
 EOSQL
 
-echo "Database cloudcart_products created successfully"
+echo "âœ… Database cloudcart_products created successfully"
