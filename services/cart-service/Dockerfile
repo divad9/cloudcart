@@ -1,21 +1,28 @@
-FROM golang:1.21-alpine
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-# Install git (needed for Go dependencies)
-RUN apk add --no-cache git
-
-# Copy go.mod first
+# Copy go mod files
 COPY go.mod ./
 
-# Download dependencies (this will create go.sum)
-RUN go mod download
+# Download dependencies and create go.sum
+RUN go mod download && go mod tidy
 
-# Copy the rest of the code
+# Copy source code
 COPY . .
 
-# Tidy modules and build
-RUN go mod tidy && go build -o main .
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+
+# Final stage
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy binary from builder
+COPY --from=builder /app/main .
 
 EXPOSE 5003
 
