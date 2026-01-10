@@ -20,6 +20,19 @@ services:
       timeout: 5s
       retries: 5
 
+  #redis service
+  redis:
+    image: redis:7-alpine
+    container_name: cloudcart-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   # User Service (Python/Flask)
   user-service:
     build: ./services/user-service
@@ -60,6 +73,22 @@ services:
       - ./services/product-service:/app
       - /app/node_modules
     restart: on-failure
+   # Cart Service
+  cart-service:
+    build: ./services/cart-service
+    container_name: cloudcart-cart-service
+    ports:
+      - "5003:5003"
+    environment:
+      - PORT=5003
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET_KEY=jwt-secret-key-12345
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: on-failure
 
 volumes:
   postgres_data:
+  redis_data:
